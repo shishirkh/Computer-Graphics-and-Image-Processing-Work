@@ -1,0 +1,47 @@
+SIFT 
+1. scale invariant feature transform
+2. transforms image data into scale-invariant coordinates
+3. meaning of "INVARIANT" features --- The SIFT features are local 
+   and based on the appearance of the 
+   object at particular interest points, and are invariant to image  
+   scale and rotation. They are also robust to changes in illumination, 
+   noise, and minor changes in viewpoint
+4. extracts distinct invariant features - > 
+   correctly matched against a large database of features from many images
+5. invariance to image scale and rotation
+6. robustness to AFFINE DISTORTIONS,CHANGES IN 3d VIEWPOINTS,ADDITION OF NOISE.
+7. advantages : locality(features detected are local) 
+		quantity (many features can be generated for even small objects)
+		efficiency(close to real time performance)
+
+STEPS TO SIFT:
+1.scale space peak selection
+find potential locations for finding the features
+2. key point localization 
+accurately locating the feature key points
+3. orientation assignment
+assigning orientation to the key points
+4. key point desciptors
+a detector only tells where the feature is, a desciptor describes the feature.
+
+SCALES
+what should be the sigma value for canny or LG edge detection?
+if we use multiple sigma values,how do we combine the multiple edge maps?
+--"spatial coincidnce assumption"---> the edges that coincide over several scales are considered as signifincant[does not work]
+
+--alternative:
+draw multiple smoooth versions of a signal [ apple whole spectrum of scales ]
+draw zerocrossing at each multple scales(scale space) [ plot zerocrossings vs scales in a scale space]
+draw interval trees[interpret the scale space conturs]
+=>contours are arches (open at bottom closed at top)
+
+interval tree:each interval corresponds to a node in a tree,whose parent node represents larger interval from which interval emerged
+stability of a node is a scale range over which the interval exist
+
+building a scale space ---
+all scales must be examined to identify the scale invariant features
+best way to get all the scales= compute the laplacian pyramid(DOG)
+
+note : BLURRING is anothey way of saying we are applying gaussian filter
+approximation of LOG by DOG
+ 

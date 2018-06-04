@@ -1,0 +1,58 @@
+--detector=dlib.get_frontal_face_detector()
+	returns a list of rough bounnding boxes each with a face in the image
+--predictor=dlib.shape_predictor(PREDICTOR_PATH) [ gives 68 face features ]
+	returns a matrix with features of a face that are detected by the dlib algorithm
+--we do this for both the images i.e. i_1 and i_2
+--each element of the matrix returned by the predictor is a (x,y) of one feature
+--we know which element contains what info....e.g. 30th row elements give the (x,y) of the tip of the nose
+--we try to work our on how to rotate translate or scale the points of the i_1 such that they fit as closesly to points of the i_2
+--sought of overlaying
+--this is a sought of orthogonal procrustes problem: it is a matrix approx problem in linear algebra,
+	In its classical form, one is given two matrices A and B and asked to find an orthogonal matrix R which most closely maps A to B.
+--on transformation from points=>
+1. convert input into float
+points1=points1.astype(numpy.float64)
+points2=points1.astype(numpy.float64)
+
+2. calculate centroid of each set of points.
+c1=numpy.mean(points1.axis=0)
+c1=numpy.mean(points1.axis=0)
+
+3. subtract points from their centroid
+points1=points1-c1
+points2=points2-c2
+
+4. calculate standard deviation of the points
+s1=numpy.std(points1)
+s2=numpy.std(points2)
+
+5. divide each point with the corresponding standard deviation
+points1=points1/s1
+points2=points2/s2
+
+6. calculate the rotation portion using single value decomposition
+7. return the complete transformation as an affine transformation
+
+U, S, Vt = numpy.linalg.svd(points1.T * points2)
+R = (U * Vt).T
+return numpy.vstack([numpy.hstack(((s2 / s1) * R,c2.T - (s2 / s1) * R * c1.T)),numpy.matrix([0., 0., 1.])])
+
+--result is then plugged into openCv's cv2.warpAffine function to map the second image onto the first
+def warp_im(im, M, dshape):
+    output_im = numpy.zeros(dshape, dtype=im.dtype)
+    cv2.warpAffine(im,
+                   M[:2],
+                   (dshape[1], dshape[0]),
+                   dst=output_im,
+                   borderMode=cv2.BORDER_TRANSPARENT,
+                   flags=cv2.WARP_INVERSE_MAP)
+    return output_im
+--after successful overlaying...we tried to overlay facial features at this point.....
+--there is a issue of difference in skin tone and lightning between the two images....causuing a discontinuity 
+around the edgeds of the overlaid region.
+--color coorection:
+	attempts to change coloring of im2 to match that of im1, by diving im2 by a gaussian blur of im2
+	multipliying by a gaussian blur of im1
+
+--blending feature of i1 into i2
+
